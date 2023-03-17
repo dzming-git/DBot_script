@@ -2,19 +2,19 @@
     "node_name": "server2",
     "ui": true,
     "encrypt": "IYVoO5Faq2/dGz6YazEBG7qefbg+/p4r+tRq1ZW2urg=",
-    "datacenter" : "test-center",
+    "datacenter": "test-center",
     "primary_datacenter": "test-center",
     "data_dir": "Y:/DBot/consul/19/data",
     "log_file": "Y:/DBot/consul/19/logs/",
     "log_level": "ERR",
     "log_rotate_bytes": 10000800,
-    "log_rotate_duration":"24h",
+    "log_rotate_duration": "24h",
     "server": true,
     "bootstrap_expect": 2,
     "enable_syslog": false,
     "retry_join": ["192.168.163.18", "192.168.163.19"],
     "start_join": ["192.168.163.18", "192.168.163.19"],
-    "acl" : {
+    "acl": {
         "enabled": true,
         "default_policy": "deny",
         "enable_token_persistence": true
