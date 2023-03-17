@@ -36,41 +36,74 @@ class Handler(FileSystemEventHandler):
     def protect_thread(self):
         while True:
             if self.pause == True:
-                time.sleep(0.1)
+                time.sleep(0.3)
                 self.pause = False
 
-    def on_any_event(self, event):
-        if self.pause:
-            return None
-        
-        if event.is_directory:
-            return None
-
-        event_type = event.event_type
-        src_path = event.src_path
+    def confirm_dest_path(self, src_path):
+        dest_path = ''
         if src_path.startswith(self.dir1):
             dest_path = src_path.replace(self.dir1, self.dir2)
         elif src_path.startswith(self.dir2):
             dest_path = src_path.replace(self.dir2, self.dir1)
-        
+        return dest_path
+
+    def on_created(self, event):
+        if self.pause:
+            return
+        src_path = event.src_path
+        dest_path = self.confirm_dest_path(src_path)
+        try:
+            if os.path.isdir(src_path):
+                shutil.copytree(src_path, dest_path)
+            else:
+                shutil.copy2(src_path, dest_path)
+        except:
+            pass
+        self.pause = True
+
+    def on_deleted(self, event):
+        if self.pause:
+            return
+        src_path = event.src_path
+        dest_path = self.confirm_dest_path(src_path)
+        try:
+            if os.path.isdir(dest_path):
+                shutil.rmtree(dest_path)
+            else:
+                os.remove(dest_path)
+        except:
+            pass
+        self.pause = True
+
+    def on_modified(self, event):
+        if self.pause:
+            return
+        src_path = event.src_path
+        dest_path = self.confirm_dest_path(src_path)
+        try:
+            shutil.copy2(src_path, dest_path)
+        except:
+            pass
+        self.pause = True
+
+    def on_moved(self, event):
+        if self.pause:
+            return
+        src_path = event.src_path
+        dest_path = self.confirm_dest_path(src_path)
         try:
             if os.path.exists(dest_path):
-                if event_type == 'deleted':
-                    if os.path.isdir(dest_path):
-                        shutil.rmtree(dest_path)
-                    else:
-                        os.remove(dest_path)
+                if os.path.isdir(dest_path):
+                    shutil.rmtree(dest_path)
                 else:
-                    shutil.copy2(src_path, dest_path)
+                    os.remove(dest_path)
+            if os.path.isdir(src_path):
+                shutil.copytree(src_path, dest_path)
             else:
-                if event_type == 'created':
-                    if os.path.isdir(src_path):
-                        shutil.copytree(src_path, dest_path)
-                    else:
-                        shutil.copy2(src_path, dest_path)
-            self.pause = True
-        except FileNotFoundError:
-            print('FileNotFoundError')
+                shutil.copy2(src_path, dest_path)
+        except:
+            pass
+        self.pause = True
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
